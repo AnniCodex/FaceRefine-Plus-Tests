@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaceRefine Plus Tests</title>
+<meta name="description" content="Side-by-side tests of ComfyUI-H3-FaceRefine-Plus and method B against the official ComfyUI-H3-FaceRefine on MiniMax H3 video shots.">
+<style>
+:root {
+  --bg: #fbfaf8; --fg: #1d1d1f; --muted: #5d5d63; --line: #dddad4; --card: #ffffff; --accent: #b4441c; --code: #f1eee9;
+  --best: #1f6f43;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --fg: #ececee; --muted: #a2a2aa; --line: #2e2e33; --card: #1c1c20; --accent: #f08a5d; --code: #26262b;
+    --best: #6fd39b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --fg: #ececee; --muted: #a2a2aa; --line: #2e2e33; --card: #1c1c20; --accent: #f08a5d; --code: #26262b;
+  --best: #6fd39b;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.2; margin: 0 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; margin: 56px 0 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+h3 { font-size: 1.1rem; margin: 32px 0 6px; }
+p, li { max-width: 72ch; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0 0 24px; }
+a { color: var(--accent); }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+nav.toc { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 20px; margin: 24px 0; }
+nav.toc ol { margin: 6px 0; padding-left: 22px; }
+figure { margin: 20px 0 28px; }
+video { display: block; width: 100%; height: auto; border-radius: 8px; background: #000; border: 1px solid var(--line); }
+figcaption { color: var(--muted); font-size: 0.93rem; margin-top: 6px; max-width: 80ch; }
+figcaption b { color: var(--fg); }
+.tablewrap { overflow-x: auto; margin: 12px 0 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 600; background: var(--code); }
+tr:last-child td { border-bottom: none; }
+td.best { color: var(--best); font-weight: 650; }
+.note { border-left: 3px solid var(--accent); padding: 4px 14px; margin: 16px 0; color: var(--muted); }
+footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.93rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>FaceRefine Plus and method B: tests and examples</h1>
+<p class="lead">Measured, side-by-side tests of <a href="https://github.com/AnniCodex/ComfyUI-H3-FaceRefine-Plus">ComfyUI-H3-FaceRefine-Plus</a>
+and of method B against the official <a href="https://github.com/Carasibana/ComfyUI-H3-FaceRefine">ComfyUI-H3-FaceRefine</a>,
+on small and medium faces in MiniMax H3 video shots. This repository holds no code: only the test videos and this page.</p>
+
+<nav class="toc" aria-label="Contents">
+<b>Contents</b>
+<ol>
+<li><a href="#setup">How the tests were run</a></li>
+<li><a href="#mara">Test 1: small face (mara, 41-62 px)</a></li>
+<li><a href="#strength">Refine strength: standard 0.15 vs strong 0.30</a></li>
+<li><a href="#methodb">Method B: the same face in normal and refined shots</a></li>
+<li><a href="#vespa">Test 2: medium face (Vespa shot, 92-110 px)</a></li>
+<li><a href="#mv">The first music-video comparison</a></li>
+<li><a href="#results">Summary</a></li>
+<li><a href="#credits">Credits and copyright</a></li>
+</ol>
+</nav>
+
+<h2 id="setup">1. How the tests were run</h2>
+<p>Every refine of a shot uses the same shot, the same MiniMax H3 prompt, the same reference pictures (face reference,
+character sheet, keyref) and the same seed (42). Only the refine settings change. All times are real render times on
+one NVIDIA RTX 5090 with the models already loaded. Each video plays at normal speed, then again at half speed.</p>
+
+<div class="tablewrap"><table>
+<tr><th>Setting</th><th>Official FaceRefine (its example workflow)</th><th>FaceRefine Plus (one-shot example workflow)</th></tr>
+<tr><td>Source</td><td>VHS Load Video</td><td>VHS Load Video FFmpeg, then RTX Video Super Resolution x2</td></tr>
+<tr><td>Face crop</td><td>H3 Face Track Crop, crop_factor 3.0</td><td>H3 Face Track Crop, crop_factor 2.2</td></tr>
+<tr><td>Sampler</td><td>er_sde, 8 steps</td><td>er_sde, 8 steps</td></tr>
+<tr><td>Denoise</td><td>0.40</td><td>0.15 (<code>standard</code>) or 0.30 (<code>strong</code>)</td></tr>
+<tr><td>Per-frame multiplier</td><td>1.0 at 30 px down to 0.35 at 120 px face height</td><td>1.0 at every size</td></tr>
+<tr><td>Paste back</td><td>H3 Face Stitch (face_only, colour_match 1.0)</td><td>H3 Face Stitch Plus (freq_sep) on the 2x base</td></tr>
+<tr><td>After the paste</td><td>nothing</td><td>H3 Face Flow Lock, H3 Face Tone Match (lip fix), scale back to the source size</td></tr>
+</table></div>
+
+<p>Note that the official multiplier lowers its own strength on bigger faces: at about 104 px the official refine runs at
+about 0.4 x 0.47 = 0.19, while Plus runs at its preset value on every frame.</p>
+
+<h3>Metrics</h3>
+<ul>
+<li><b>Wobble</b>: frame-to-frame change of the offset between the refined and the original facial features (phase
+correlation of the high-pass face), as a percentage of the face height. Lower = the face sits still on the head.</li>
+<li><b>Face sharpness</b>: variance of the Laplacian inside the face box. Higher = more fine detail. The H3 original
+often scores high because of noise and compression texture, so compare the refines with each other.</li>
+<li><b>Colour vs original</b>: mean CIELAB shift of the face box vs the original shot (dL lightness, db yellow-blue).
+Closer to 0 = the face keeps the shot's light and colour.</li>
+<li><b>Identity</b>: ArcFace (buffalo_l) cosine similarity between the face in the shot and the same character's
+close-ups in the same clip. Higher = looks more like the character as H3 drew them in close-up.</li>
+</ul>
+
+<h2 id="mara">2. Test 1: small face (mara, 41-62 px)</h2>
+<p>A wide shot from the example assets of the FaceRefine Plus repo: 107 frames (4.46 s) at 1536x896, face 41-62 px
+tall. mara is an invented character; nothing here shows a real person.</p>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_official_zoom.jpg" src="videos/comparison_mara_official_zoom.mp4"></video>
+<figcaption><b>Face zooms:</b> H3 original | official FaceRefine | FaceRefine Plus 0.15 | FaceRefine Plus 0.30.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_official_fullframe.jpg" src="videos/comparison_mara_official_fullframe.mp4"></video>
+<figcaption><b>Whole source frame on top</b>, to show how small the face is in the scene; face zooms below: original | official | Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_full_official_vs_plus.jpg" src="videos/comparison_mara_full_official_vs_plus.mp4"></video>
+<figcaption><b>Whole frame, native size:</b> official FaceRefine | FaceRefine Plus 0.15. Open the video full screen to see the faces.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_full_official_vs_plus030.jpg" src="videos/comparison_mara_full_official_vs_plus030.mp4"></video>
+<figcaption><b>Whole frame:</b> official FaceRefine | FaceRefine Plus 0.30.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_full_official.jpg" src="videos/comparison_mara_full_official.mp4"></video>
+<figcaption><b>Whole frame:</b> H3 original | official FaceRefine.</figcaption>
+</figure>
+
+<div class="tablewrap"><table>
+<tr><th>mara wide shot (107 f, face 41-62 px)</th><th>Wobble</th><th>Face sharpness</th><th>Colour (dL / db)</th><th>Identity vs close-ups</th><th>RTX 5090</th></tr>
+<tr><td>H3 original</td><td>-</td><td>3851</td><td>-</td><td>0.23</td><td>-</td></tr>
+<tr><td>Official FaceRefine</td><td>0.70 %</td><td>1613</td><td>-0.9 / -2.2</td><td>0.60</td><td>87 s</td></tr>
+<tr><td>FaceRefine Plus 0.15</td><td class="best">0.42 %</td><td class="best">2979</td><td class="best">-0.2 / -0.5</td><td>0.41</td><td>256 s</td></tr>
+<tr><td>FaceRefine Plus 0.30</td><td>0.45 %</td><td>2948</td><td class="best">-0.2 / -0.5</td><td class="best">0.68</td><td>239 s</td></tr>
+</table></div>
+
+<p>Plus keeps the face steadier (-40 % wobble), sharper (1.8x) and in the shot's colours. At the <code>standard</code>
+strength it stays close to the face H3 drew, so identity vs the close-ups is lower than with the official refine, which
+re-draws more (denoise 0.40). At the <code>strong</code> strength Plus overtakes the official on identity too
+(0.68 vs 0.60) and keeps the same wobble, sharpness and colour. Plus takes about three times as long.</p>
+
+<h2 id="strength">3. Refine strength: standard 0.15 vs strong 0.30</h2>
+<p>FaceRefine Plus has a preset node, <b>H3 FaceRefine Plus Strength</b>, for the sampler denoise. These videos show the
+whole source frame on top and one row of face zooms: original | official | Plus 0.15 | Plus 0.30. The two Plus versions
+differ only in the denoise.</p>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_strength.jpg" src="videos/comparison_mara_strength.mp4"></video>
+<figcaption><b>mara</b>, face 41-62 px.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_vespa_strength.jpg" src="videos/comparison_vespa_strength.mp4"></video>
+<figcaption><b>Vespa shot</b>, the singer's face, 92-110 px.</figcaption>
+</figure>
+
+<div class="tablewrap"><table>
+<tr><th></th><th>Wobble</th><th>Face sharpness</th><th>Colour (dL / db)</th><th>Identity vs close-ups</th><th>RTX 5090</th></tr>
+<tr><td>mara, Plus 0.15</td><td class="best">0.42 %</td><td class="best">2979</td><td>-0.2 / -0.5</td><td>0.41</td><td>256 s</td></tr>
+<tr><td>mara, Plus 0.30</td><td>0.45 %</td><td>2948</td><td>-0.2 / -0.5</td><td class="best">0.68</td><td>239 s</td></tr>
+<tr><td>Vespa, Plus 0.15</td><td>0.12 %</td><td class="best">1094</td><td>-0.3 / -0.2</td><td>0.43</td><td>210 s</td></tr>
+<tr><td>Vespa, Plus 0.30</td><td>0.12 %</td><td>1009</td><td>-0.3 / -0.2</td><td>0.42</td><td>208 s</td></tr>
+</table></div>
+
+<p>Doubling the strength does not add detail. On a small face it re-draws the face toward the reference pictures
+(identity 0.41 to 0.68). On a medium face the two presets measure almost the same. Use <code>strong</code> when the face
+must look more like the character; keep <code>standard</code> when it must stay the face H3 drew.</p>
+
+<h2 id="methodb">4. Method B: the same face in normal and refined shots</h2>
+<p><i>Method devised by the author of FaceRefine Plus.</i> A refined wide shot can look like a slightly different
+person from the same character in the clip's close-ups, which H3 rendered straight from the reference. Method B makes
+the refined face the character's reference from the start:</p>
+<ol>
+<li>Render the clip from the original face reference.</li>
+<li>Run FaceRefine Plus on its wide shot.</li>
+<li>Turn the refined face into a new neutral reference portrait (Qwen Image 2.1 Edit).</li>
+<li>Rebuild the character sheet from it and re-render the clip from scratch: same prompt, same seed, new reference and sheet.</li>
+<li>Cut the new wide shot, make its keyref and run FaceRefine Plus on it again.</li>
+</ol>
+<p>The workflows for every step are in the FaceRefine Plus repo.</p>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara.jpg" src="videos/comparison_mara.mp4"></video>
+<figcaption><b>Face zooms:</b> H3 original | FaceRefine Plus | method B: H3 original | method B: FaceRefine Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_fullframe.jpg" src="videos/comparison_mara_fullframe.mp4"></video>
+<figcaption><b>Whole source frame on top</b>; zooms below: original | FaceRefine Plus | method B + FaceRefine Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_full_plus.jpg" src="videos/comparison_mara_full_plus.mp4"></video>
+<figcaption><b>Whole frame:</b> H3 original | FaceRefine Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_mara_full_method_b.jpg" src="videos/comparison_mara_full_method_b.mp4"></video>
+<figcaption><b>Whole frame:</b> H3 original | method B + FaceRefine Plus (clip re-rendered from scratch, 315 s, then Plus 259 s).</figcaption>
+</figure>
+
+<p>Measured on the four example characters of the FaceRefine Plus repo (ArcFace cosine vs the close-up shot of the
+same clip; <i>refined</i> = the wide shot after FaceRefine Plus 0.15):</p>
+<div class="tablewrap"><table>
+<tr><th>Character</th><th>A: wide</th><th>A: refined</th><th>B: wide</th><th>B: refined</th></tr>
+<tr><td>mara</td><td>0.23</td><td>0.41</td><td>0.37</td><td class="best">0.50</td></tr>
+<tr><td>teo</td><td>0.45</td><td>0.57</td><td>0.57</td><td class="best">0.76</td></tr>
+<tr><td>ines</td><td>0.30</td><td>0.61</td><td>0.36</td><td class="best">0.62</td></tr>
+<tr><td>bruno</td><td>0.49</td><td>0.62</td><td>0.57</td><td class="best">0.74</td></tr>
+<tr><td><b>mean</b></td><td>0.37</td><td>0.55</td><td>0.47</td><td class="best">0.65</td></tr>
+</table></div>
+<p>Method B costs one extra clip render, so use it at the start of a new video, before the other clips: it changes the
+face a little, so don't switch mid-project. On a music video the same method took the refined face from 0.56 to 0.75.</p>
+
+<h2 id="vespa">5. Test 2: medium face (Vespa shot, 92-110 px)</h2>
+<p>Shot 1 of clip C05 of a music video (frames 0-89, 3.75 s at 1536x896): the singer's face only, 92-110 px tall.
+Same settings, prompt, five reference pictures and seed for every refine. For method B the whole C05 clip was
+re-rendered from scratch with a new reference of the singer made from his FaceRefine Plus face, and a character
+sheet made from it (same graph, prompt and seed), then the same Plus graph ran on the new shot.</p>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_vespa_fullframe.jpg" src="videos/comparison_vespa_fullframe.mp4"></video>
+<figcaption><b>Whole source frame on top</b>; zooms: original | official | Plus | method B + Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_vespa_zoom.jpg" src="videos/comparison_vespa_zoom.mp4"></video>
+<figcaption><b>Face zooms only:</b> original | official | Plus | method B + Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_vespa_full_official_vs_plus.jpg" src="videos/comparison_vespa_full_official_vs_plus.mp4"></video>
+<figcaption><b>Whole frame:</b> official FaceRefine | FaceRefine Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_vespa_full_official.jpg" src="videos/comparison_vespa_full_official.mp4"></video>
+<figcaption><b>Whole frame:</b> H3 original | official FaceRefine.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_vespa_full_plus.jpg" src="videos/comparison_vespa_full_plus.mp4"></video>
+<figcaption><b>Whole frame:</b> H3 original | FaceRefine Plus.</figcaption>
+</figure>
+
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison_vespa_full_method_b.jpg" src="videos/comparison_vespa_full_method_b.mp4"></video>
+<figcaption><b>Whole frame:</b> H3 original | method B + FaceRefine Plus.</figcaption>
+</figure>
+
+<div class="tablewrap"><table>
+<tr><th>Vespa shot (90 f, face 92-110 px)</th><th>Wobble</th><th>Face sharpness</th><th>Colour (dL / db)</th><th>Identity vs close-up</th><th>RTX 5090</th></tr>
+<tr><td>H3 original</td><td>-</td><td>1372</td><td>-</td><td>0.40</td><td>-</td></tr>
+<tr><td>Official FaceRefine</td><td>0.20 %</td><td>481</td><td>-1.1 / -1.8</td><td>0.44</td><td>92 s</td></tr>
+<tr><td>FaceRefine Plus 0.15</td><td>0.12 %</td><td>1094</td><td class="best">-0.3 / -0.2</td><td>0.43</td><td>210 s</td></tr>
+<tr><td>Method B + FaceRefine Plus</td><td class="best">0.11 %</td><td class="best">1413</td><td class="best">-0.3 / -0.2</td><td>0.33 (0.67 vs its new reference)</td><td>476 s clip + 232 s</td></tr>
+</table></div>
+
+<p>On this bigger face the official multiplier lowers its strength, so the identity gap of the mara shot disappears
+(0.44 vs 0.43). The sharpness gap grows: the official result keeps 35 % of the original's face detail, Plus 80 %.
+Wobble is 40 % lower with Plus, as on mara. Method B is the only version sharper than the original. Its identity vs the
+old close-up is low by design, because method B gives the singer a new face; against its own new reference it scores 0.67.</p>
+
+<h2 id="mv">6. The first music-video comparison</h2>
+<figure>
+<video controls loop muted playsinline preload="metadata" poster="posters/comparison.jpg" src="videos/comparison.mp4"></video>
+<figcaption><b>The same Vespa shot, earlier settings:</b> original | official FaceRefine (example values, four reference
+pictures, no keyref) | FaceRefine Plus with Flow Lock and Tone Match at the older default denoise 0.30 | latent hires
+re-render of the whole clip at 2304x1344, shown at 1536x896.</figcaption>
+</figure>
+<p class="note">This was the first comparison, made while FaceRefine Plus was being developed. The tests above use the
+current settings and the same five reference pictures for every refine.</p>
+
+<h2 id="results">7. Summary</h2>
+<ul>
+<li><b>Wobble:</b> Plus is about 40 % steadier than the official refine on both faces.</li>
+<li><b>Detail:</b> Plus keeps 1.8x (small face) to 2.3x (medium face) the face sharpness of the official refine.</li>
+<li><b>Colour:</b> Plus stays within 0.5 of the shot's colour; the official refine shifts it by up to 2.2 (CIELAB).</li>
+<li><b>Identity:</b> at <code>standard 0.15</code> Plus stays with the face H3 drew; at <code>strong 0.30</code> it beats the
+official refine on a small face (0.68 vs 0.60). On a medium face the two refines score the same.</li>
+<li><b>Method B</b> gives the best match between refined shots and close-ups (mean 0.65 vs 0.55 on four characters), at the
+cost of one extra clip render.</li>
+<li><b>Time:</b> Plus takes about 2.3-2.9x as long as the official refine (RTX upscale, 2x base, Flow Lock and Tone Match).</li>
+</ul>
+
+<footer id="credits">
+<p><b>Credits.</b> <a href="https://github.com/Carasibana/ComfyUI-H3-FaceRefine">ComfyUI-H3-FaceRefine</a> by Carasibana.
+FaceRefine Plus and method B: <a href="https://github.com/AnniCodex/ComfyUI-H3-FaceRefine-Plus">ComfyUI-H3-FaceRefine-Plus</a>.
+The mara, teo, ines and bruno characters are invented and were made from scratch for the FaceRefine Plus repo (portraits
+with Krea 2, character sheets and keyrefs with Qwen Image 2.1 Edit, clips with MiniMax H3). They do not show real people.</p>
+<p><b>Copyright.</b> The Vespa clips (every video named <code>comparison_vespa_*.mp4</code> and <code>comparison.mp4</code>)
+are taken from a music video by Annistupendi Music and are &copy; Annistupendi Music, all rights reserved. They are shown
+here only to document these tests. Watch the full video on YouTube:
+<a href="https://www.youtube.com/watch?v=8_gSLNxd2EE">https://www.youtube.com/watch?v=8_gSLNxd2EE</a>.</p>
+</footer>
+
+</main>
+</body>
+</html>
